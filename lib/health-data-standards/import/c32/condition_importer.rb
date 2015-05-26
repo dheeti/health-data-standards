@@ -2,14 +2,14 @@ module HealthDataStandards
   module Import
     module C32
       class ConditionImporter < CDA::ConditionImporter
-        
+
         def initialize
           super
           @death_xpath = "./cda:entryRelationship[@typeCode='CAUS']/cda:observation"
           @cod_xpath = "#{@death_xpath}/cda:code[@code='419620001']"
           @time_of_death_xpath = "#{@death_xpath}/cda:effectiveTime/@value"
         end
-        
+
         def create_entry(entry_element, nrh = CDA::NarrativeReferenceHandler.new)
           condition = super
           extract_cause_of_death(entry_element, condition)
