@@ -137,8 +137,14 @@ module HealthDataStandards
           gender_node = patient_element.at_xpath('cda:administrativeGenderCode')
           patient.gender = gender_node['code']
           id_node = patient_role_element.at_xpath('./cda:id')
-          patient.medical_record_number = id_node['extension']
-          
+
+          if id_node['extension'].nil?
+            id_node = doc.at_xpath('//cda:id')
+            patient.medical_record_number = id_node['root']
+          else
+            patient.medical_record_number = id_node['extension']
+          end
+                    
           # parse race, ethnicity, and spoken language
           race_node = patient_element.at_xpath('cda:raceCode')
           patient.race = { code: race_node['code'], code_set: 'CDC-RE' } if race_node
