@@ -13,6 +13,7 @@ class Provider
 
   embeds_one :organization
   embeds_many :cda_identifiers, class_name: "CDAIdentifier", as: :cda_identifiable
+  belongs_to :encounter, class_name: "Encounter", inverse_of: :performers
 
   scope :by_npi, ->(an_npi){ where("cda_identifiers.root" => NPI_OID, "cda_identifiers.extension" => an_npi)}
 
@@ -86,6 +87,6 @@ class Provider
   # the Provider by name matching and if that fails a Provider will be created
   # in the db based on the information in the parsed hash.
   def self.resolve_provider(provider_hash, patient=nil)
-    Provider.where(:npi => nil).first
+    Provider.where(:given_name => provider_hash[:given_name]).first
   end
 end

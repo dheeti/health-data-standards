@@ -25,8 +25,11 @@ module HealthDataStandards
         private
     
         def extract_performer(parent_element, encounter)
-          performer_element = parent_element.at_xpath("./cda:performer")
-          encounter.performer = import_actor(performer_element) if performer_element
+          performer_elements = parent_element.xpath("./cda:performer")
+          performer_elements.each do |performer_element|
+            tempProvider = import_actor(performer_element)
+            encounter.performers.push tempProvider
+          end
         end
 
         def extract_facility(parent_element, encounter)

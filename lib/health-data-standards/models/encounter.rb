@@ -10,7 +10,7 @@ class Encounter < Entry
   embeds_one :facility
   embeds_one :reason, class_name: "Entry"
 
-  belongs_to :performer, class_name: "Provider"
+  embeds_many :performers, class_name: "Provider", inverse_of: :encounter
 
   alias :transfer_to :transferTo
   alias :transfer_to= :transferTo=
