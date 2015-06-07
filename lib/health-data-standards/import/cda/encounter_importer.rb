@@ -39,6 +39,7 @@ module HealthDataStandards
             facility.addresses = participant_element.xpath("./cda:addr").try(:map) {|ae| import_address(ae)}
             facility.telecoms = participant_element.xpath("./cda:telecom").try(:map) {|te| import_telecom(te)}
             facility.code = extract_code(participant_element, './cda:code')
+            facility.desc = participant_element.at_xpath("./cda:playingEntity/cda:desc").try(:text)
             extract_dates(participant_element.parent, facility, "time")
             encounter.facility = facility
           end

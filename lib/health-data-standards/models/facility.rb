@@ -3,6 +3,7 @@ class Facility
   include Mongoid::Attributes::Dynamic
   
   field :name, type: String
+  field :desc, type: String
   field :code, type: Hash
   
   field :start_time, type: Integer
