@@ -7,7 +7,9 @@ module HealthDataStandards
         failed_dir ||= File.join(source_dir, '../', 'failed_imports')
         files = Dir.glob(File.join(source_dir, '*.*'))
         files.each do |file|
-	   self.import_file(file,File.new(file).read,failed_dir)
+          file_name = File.basename(file)
+          mpi = file_name.split("_")[0]
+	        self.import_file(file,File.new(file).read,failed_dir,mpi)
         end
       end
 
@@ -27,7 +29,9 @@ module HealthDataStandards
             end
             next if entry.directory?
             data = zipfile.read(entry.name)
-	    self.import_file(entry.name,data,failed_dir)
+            file_name = File.basename(entry.name)
+            mpi = file_name.split("_")[0]
+	    self.import_file(entry.name,data,failed_dir,mpi)
           end
         end
 
@@ -56,13 +60,13 @@ module HealthDataStandards
       end
       end
 
-      def self.import_file(name,data,failed_dir,provider_map={})
+      def self.import_file(name,data,failed_dir,provider_map={},mpi)
         begin
           ext = File.extname(name)
           if ext == ".json"
-	    self.import_json(data)
+	    self.import_json(data,mpi)
           else
-	    self.import(data)
+	    self.import(data,mpi)
           end
         rescue
           FileUtils.mkdir_p(File.dirname(File.join(failed_dir,name)))
@@ -76,7 +80,7 @@ module HealthDataStandards
         end
       end
 
-      def self.import_json(data,provider_map = {})
+      def self.import_json(data,provider_map = {},mpi)
         json = JSON.parse(data,:max_nesting=>100)
         record = Record.update_or_create(Record.new(json))
         providers = record.provider_performances
@@ -88,7 +92,7 @@ module HealthDataStandards
         record.save!
       end
 
-      def self.import(xml_data, provider_map = {})
+      def self.import(xml_data, provider_map = {},mpi)
         doc = Nokogiri::XML(xml_data)
 
         providers = []
@@ -108,8 +112,13 @@ module HealthDataStandards
             STDERR.puts("Unable to determinate document template/type of CDA document")
             return {status: 'error', message: "Document templateId does not identify it as a C32 or CCDA", status_code: 400}
           end
-
-          record = Record.update_or_create(patient_data)
+          binding.pry
+          if mpi.nil?
+            record = Record.update_or_create(patient_data)
+          else
+            patient_data.mpi = mpi
+            record = Record.update_or_create(patient_data)
+          end
 
           begin
             providers = CDA::ProviderImporter.instance.extract_providers(doc, record)

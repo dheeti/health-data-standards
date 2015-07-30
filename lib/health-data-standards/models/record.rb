@@ -23,7 +23,7 @@ class Record
   field :clinicalTrialParticipant, as: :clinical_trial_participant, type: Boolean   # Currently not implemented in the C32 importer
                                                                                     # because it cannot be easily represented in a
                                                                                     # HITSP C32
-
+  field :mpi, type: String                                                          #Very Very hacky. Adding this just to take care of HB                                                                       
   index "last" => 1
   index medical_record_number: 1
   index test_id: 1
@@ -125,7 +125,7 @@ class Record
       else
         unique_entries[entry.identifier] = entry
       end
-      
+
     end
     self.send("#{section}=", unique_entries.values)
   end
